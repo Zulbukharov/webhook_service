@@ -1,4 +1,4 @@
-# Boilerplates for Golang service and Hasura GraphQL Engine's Event Triggers
+# Boilerplate for Golang service and Hasura GraphQL Engine's Event Triggers
 
 ## Events Trigger and Serverless functions architecture
 
