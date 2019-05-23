@@ -1,31 +1,50 @@
 package handlers
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 
 	"github.com/gin-gonic/gin"
 )
 
+/*
+                      +--------------+
+              +-------+ HASURA EVENT +-----------+
+              |       +--------------+           |
+              v                                  v
+      +-------+------+                   +-------+------+
+      | TABLE STRUCT |                   | EVENT STRUCT |
+      +-------+------+                   ++-------------+
+              |                           |             |
+              |                           v             v
++------+      |               +-----------++           ++----------+
+| NAME +<-----+               | EVENT DATA |           | OPERATION |
++------+                      +------------+           +-----------+
+                              |            |
+                              v            v
+                          +---+-+         ++----+
+                          | OLD |         | NEW |
+                          +-----+         +-----+
+
+*/
+
 type TableStruct struct {
-	Name string `json:"name"`
+	Name string `json:"name" binding:"required"`
 }
 
 type EventData struct {
-	Old map[string]interface{} `json:"old"`
-	New map[string]interface{} `json"new"`
+	Old map[string]interface{} `json:"old" binding:"required"`
+	New map[string]interface{} `json"new" binding:"required"`
 }
 
 type EventStruct struct {
-	Operation string    `json:"op"`
-	Data      EventData `json:"data"`
+	Operation string    `json:"op" binding:"required"`
+	Data      EventData `json:"data" binding:"required"`
 }
 
 type HasuraEvent struct {
-	Table *TableStruct `json:"table"`
-	Event *EventStruct `json:"event"`
-	Op    string       `json:"op"`
+	Table *TableStruct `json:"table" binding:"required"`
+	Event *EventStruct `json:"event" binding:"required"`
+	Op    string       `json:"op" binding:"required"`
 }
 
 func Article(c *gin.Context) {
@@ -33,8 +52,12 @@ func Article(c *gin.Context) {
 		Table: &TableStruct{},
 		Event: &EventStruct{},
 	}
-	x, _ := ioutil.ReadAll(c.Request.Body)
-	err := json.Unmarshal([]byte(x), body)
+	err := c.BindJSON(&body)
+	if err != nil {
+		fmt.Println(err)
+		c.JSON(400, gin.H{"error": err})
+		return
+	}
 	if err != nil {
 		message := map[string]string{
 			"message": "Unable to parse Hasura Event",
@@ -43,9 +66,8 @@ func Article(c *gin.Context) {
 		return
 	}
 	var message = "cannot process request"
-	var data = body.Event.Data
 	if body.Table.Name == "article" {
-		message = fmt.Sprintf("New note %v inserted, with data: %v", data.New["id"], data.New["title"])
+		message = fmt.Sprintf("New note %v inserted, with data: %v", body.Event.Data.New["id"], body.Event.Data.New["title"])
 	}
 	c.JSON(200, gin.H{"message": message})
 	return
