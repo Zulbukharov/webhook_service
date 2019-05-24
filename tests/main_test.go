@@ -20,22 +20,22 @@ var (
 	header = os.Getenv("AUTO")
 )
 
-type Payload struct {
-	Event struct {
-		Op   string `json:"op"`
-		Data struct {
-			Old interface{} `json:"old"`
-			New struct {
-				Text string `json:"text"`
-				ID   int    `json:"id"`
-			} `json:"new"`
-		} `json:"data"`
-	} `json:"event"`
-	Table struct {
-		Schema string `json:"schema"`
-		Name   string `json:"name"`
-	} `json:"table"`
-}
+// type Payload struct {
+// 	Event struct {
+// 		Op   string `json:"op"`
+// 		Data struct {
+// 			Old interface{} `json:"old"`
+// 			New struct {
+// 				Text string `json:"text"`
+// 				ID   int    `json:"id"`
+// 			} `json:"new"`
+// 		} `json:"data"`
+// 	} `json:"event"`
+// 	Table struct {
+// 		Schema string `json:"schema"`
+// 		Name   string `json:"name"`
+// 	} `json:"table"`
+// }
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
