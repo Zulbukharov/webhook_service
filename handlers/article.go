@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -32,7 +33,7 @@ type TableStruct struct {
 }
 
 type EventData struct {
-	Old map[string]interface{} `json:"old" binding:"required"`
+	Old map[string]interface{} `json:"old"`
 	New map[string]interface{} `json"new" binding:"required"`
 }
 
@@ -42,26 +43,40 @@ type EventStruct struct {
 }
 
 type HasuraEvent struct {
-	Table *TableStruct `json:"table" binding:"required"`
 	Event *EventStruct `json:"event" binding:"required"`
-	Op    string       `json:"op" binding:"required"`
+	Table *TableStruct `json:"table" binding:"required"`
 }
 
 func Article(c *gin.Context) {
-	body := &HasuraEvent{
-		Table: &TableStruct{},
-		Event: &EventStruct{},
+	// c.Request.Body
+	header := c.GetHeader("Authorization")
+	fmt.Println(header)
+	if header != os.Getenv("AUTO") {
+		c.JSON(400, gin.H{"error": "wrong header"})
+		return
 	}
+	// body := &HasuraEvent{
+	// 	Table: &TableStruct{},
+	// 	Event: &EventStruct{},
+	// }
+	// body := new(HasuraEvent)
+	var body HasuraEvent
 	err := c.BindJSON(&body)
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(400, gin.H{"error": err})
 		return
 	}
+	// fmt.Printf("%+v\n", body.Event)
+	// for _, _ := range body.Table {
+	// }
+	// for _, _ := range body.Event
+	// fmt.Printf("%+v", body)
 	var message = "cannot process request"
-	if body.Table.Name == "article" {
-		message = fmt.Sprintf("New note %v inserted, with data: %v", body.Event.Data.New["id"], body.Event.Data.New["title"])
-	}
+	// if body.Table.Name == "note" {
+	// 	message = fmt.Sprintf("New note %v inserted, with data: %v", body.Event.Data.New["id"], body.Event.Data.New["text"])
+	// }
+	fmt.Println(message)
 	c.JSON(200, gin.H{"message": message})
 	return
 }
