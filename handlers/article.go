@@ -58,13 +58,6 @@ func Article(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err})
 		return
 	}
-	if err != nil {
-		message := map[string]string{
-			"message": "Unable to parse Hasura Event",
-		}
-		c.JSON(400, message)
-		return
-	}
 	var message = "cannot process request"
 	if body.Table.Name == "article" {
 		message = fmt.Sprintf("New note %v inserted, with data: %v", body.Event.Data.New["id"], body.Event.Data.New["title"])
