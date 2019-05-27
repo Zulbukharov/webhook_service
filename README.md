@@ -57,7 +57,7 @@ Webhook response:
 The following is a representative tree of the folder structure:
 
     .
-    ├── aws-lambda
+    ├── webhook-service
     |   |── README.md
     |   |── routes
     |   |   |── routes.go
